@@ -117,6 +117,7 @@ const theme = createTheme({
     <ThemeProvider theme={theme}>
       <TitleBar />
       <Container maxWidth="lg" sx={{ mt: 4, padding: 0}}>
+      <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }} style={{ fontFamily: "cursive" }}>Book Collections</Typography>
         <Grid container spacing={2}>
         {books.map((book) => (
           <Grid item key={book._id} xs={12} sm={6} md={4} lg={3} xl={3}>
@@ -174,7 +175,7 @@ const theme = createTheme({
     </DialogContent>
   </Dialog>
   </ThemeProvider>
-  
+
   );
 }
 

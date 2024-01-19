@@ -80,19 +80,6 @@ const AddBook = () => {
     return savedBook ? JSON.parse(savedBook) : { title: '', author: '', genre: '', coverImage: '', owner:userEmail};
   });
 
-  //fuction to check if the cover image url is valid
-  const isValidUrl = (url) => {
-    if (url === '') {
-      return true; // Allow empty URL
-  }
-    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    return urlPattern.test(url);
-  };
 
 
   // Function to add a new book
@@ -107,13 +94,6 @@ const AddBook = () => {
         return; // Don't proceed if required fields are missing
         }
 
-      //check if the image url is valid
-      if (!isValidUrl(newBook.coverImage)) {
-        setSnackbarMessage('Invalid image URL');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-        return;
-      }
 
       //api call to the backend 
       const response = await axios.post('http://localhost:5000/books', newBook);

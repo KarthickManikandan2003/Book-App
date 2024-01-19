@@ -33,7 +33,7 @@ const TitleBar = () => {
             <LibraryBooksIcon sx={{ fontSize: 32, color: 'white' }} />
           </IconButton>
           <Typography variant="h4" component="div" sx={{ color: 'white', fontFamily: 'cursive' }}>
-            Book Haven
+            Book Sphere
           </Typography>
         </Box>
 

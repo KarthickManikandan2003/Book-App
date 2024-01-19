@@ -78,7 +78,7 @@ const BookDetails = () => {
                 primary={<Typography variant="h5">{book.title}</Typography>} // Increase font size
                 secondary={
                   <Typography variant="body1">
-                    Author: {book.author}, Genre: {book.genre}, Owner: {book.owner}
+                    Author: {book.author}, Genre: {book.genre}
                   </Typography>
                 } // Increase font size
               />

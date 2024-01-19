@@ -116,20 +116,6 @@ const EditBook = () => {
     }));
   };
 
-  //function to check if the url is valid
-  const isValidUrl = (url) => {
-
-    if (url === '') {
-      return true; // Allow empty URL
-    }
-    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-      return urlPattern.test(url);
-  };
 
   //save the changes in the database
   const submitEditBook = async () => {
@@ -143,13 +129,6 @@ const EditBook = () => {
         return; // Don't proceed if required fields are missing
       }
 
-      //check if cover image url is valid
-      if (!isValidUrl(editBookData.coverImage)) {
-        setSnackbarMessage('Invalid image URL');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-        return;
-      }
 
       const response =  await axios.put(`http://localhost:5000/books/${editBookData._id}`, editBookData);
       console.log(response);
