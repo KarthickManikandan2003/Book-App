@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-  origin: "http://localhost:3000", // Replace with your frontend's URL
+  origin: "https://book-app-wheat-six.vercel.app/", // Replace with your frontend's URL
   credentials: true, // Enable cookies and other credentials
 };
 
