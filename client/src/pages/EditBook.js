@@ -1,0 +1,269 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { 
+  Button, Typography, styled,
+  TextField, Snackbar, Paper, Grid, Fade, Container
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import TitleBar from '../components/TitleBar';
+import CssTextField from '../components/CssTextField';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#455A64',
+    },
+    secondary: {
+      main: '#455A64',
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+    btn_clr: {
+      main: '#00bcd4',
+    }
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          transition: '0.3s',
+          '&:hover': {
+            boxShadow: '0 8px 16px 0 rgba(0,0,0,0.2)',
+          },
+        },
+      },
+    },
+  },
+  overrides: {
+    MuiAppBar: {
+      root: {
+        background: 'linear-gradient(to right, #6a1b9a, #00bcd4)',
+        color: 'white',
+        boxShadow: 'none',
+      },
+    },
+    MuiToolbar: {
+      root: {
+        display: 'flex',
+        justifyContent: 'space-between',
+      },
+    },
+    MuiButton: {
+      root: {
+        color: 'white',
+        marginLeft: '8px',
+      },
+    },
+  },
+});
+
+const EditBook = () => {
+  const userEmail = localStorage.getItem('userEmail'); 
+
+  let { id } = useParams();
+  const [books, setBooks] = useState([]);
+  const [editBookData, setEditBookData] = useState({});
+  //const [isModalOpen, setIsModalOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const navigate = useNavigate();
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  useEffect(() => {
+    console.log('ID:', id); // Check if the id parameter is correct
+    fetchBooks(); // Fetch book details when the component mounts
+  }, [id]);
+
+  const fetchBooks = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/books/${id}`);
+      // Check the response data
+      setEditBookData(response.data); // Update editBookData
+      console.log('Response Data:', editBookData);
+      console.log(userEmail)
+    } catch (error) {
+      console.error('Error fetching book details:', error);
+    }
+  };
+
+  const deleteBook = async () => {
+    try {
+     const response = await axios.delete(`http://localhost:5000/books/${editBookData._id}`);
+
+      setBooks(books.filter((book) => book._id !== id));
+      if(response.status==200){
+        navigate("/")
+      }
+    } catch (error) {
+      console.error('Error deleting book:', error);
+    }
+  };
+
+  
+
+  const handleEditBookChange = (e) => {
+    setEditBookData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const isValidUrl = (url) => {
+
+    if (url === '') {
+      return true; // Allow empty URL
+  }
+      const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+      return urlPattern.test(url);
+  };
+
+  const submitEditBook = async () => {
+    try {
+
+      if (!editBookData.title || !editBookData.author) {
+        setSnackbarMessage('Title and Author are required fields');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return; // Don't proceed if required fields are missing
+      }
+
+      if (!isValidUrl(editBookData.coverImage)) {
+        setSnackbarMessage('Invalid image URL');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        return;
+      }
+
+     const response =  await axios.put(`http://localhost:5000/books/${editBookData._id}`, editBookData);
+     console.log(response);
+      //setIsModalOpen(false);
+      fetchBooks(); // Refresh the books list
+      setSnackbarMessage('Book updated successfully');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+      if(response.status==200){
+        navigate("/")
+      }
+    } catch (error) {
+      console.error('Error updating book:', error);
+      setSnackbarMessage('Cannot update book');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
+  const isOwner = (book) => {
+    return book.owner === userEmail;
+  };
+  
+
+    return (
+      <ThemeProvider theme={theme}>
+
+      <TitleBar />
+  
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Grid container direction="column" alignItems="center" justifyContent="center" spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Fade in timeout={1000}>
+              <Paper elevation={3} sx={{ p: 2, borderRadius: '16px' }}>
+                <Typography variant="h5" gutterBottom align="center" style={{ fontFamily: "cursive" }}>
+                  Update the book
+                </Typography>
+                <form noValidate autoComplete="off">
+          <CssTextField
+            label="Title"
+            name="title"
+            fullWidth
+            margin="normal"
+            value={editBookData?.title || ''}
+            onChange={handleEditBookChange}
+          />
+          <CssTextField
+            label="Author"
+            name="author"
+            fullWidth
+            margin="normal"
+            value={editBookData?.author || ''}
+            onChange={handleEditBookChange}
+          />
+          <CssTextField
+            label="Genre"
+            name="genre"
+            fullWidth
+            margin="normal"
+            value={editBookData?.genre || ''}
+            onChange={handleEditBookChange}
+          />
+          <CssTextField
+            label="Cover Image URL"
+            name="coverImage"
+            fullWidth
+            margin="normal"
+            value={editBookData?.coverImage || ''}
+            onChange={handleEditBookChange}
+          />
+          
+          {isOwner(editBookData) && (
+      <div>
+        <Button
+          onClick={submitEditBook}
+          variant="contained"
+          sx={{
+            borderRadius: '20px', // Curved vertices
+            padding: '10px 20px',
+            margin: '10px',
+            backgroundColor: '#4caf50', // Green color for Save button
+            '&:hover': {
+              backgroundColor: '#388e3c', // Darker shade on hover
+            }
+          }}
+        >
+          Save Changes
+        </Button>
+        <Button
+          onClick={deleteBook}
+          variant="contained"
+          sx={{
+            borderRadius: '20px', // Curved vertices
+            padding: '10px 20px',
+            margin: '10px',
+            backgroundColor: '#f44336', // Red color for Delete button
+            '&:hover': {
+              backgroundColor: '#d32f2f', // Darker shade on hover
+            }
+          }}
+        >
+          Delete Book
+        </Button>
+      </div>
+    )}
+                </form>
+              </Paper>
+            </Fade>
+          </Grid>
+          </Grid>
+      </Container>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <MuiAlert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
+      </ThemeProvider>
+    );
+};
+
+export default EditBook;
