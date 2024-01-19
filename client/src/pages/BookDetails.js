@@ -25,7 +25,7 @@ const BookDetails = () => {
   //fetch book details from the backend 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get('https://bookapp-y9m7.onrender.com/books');
+      const response = await axios.get('http://localhost:5000/books');
       setBooks(response.data);
       if(books.owner == localStorage.getItem("userEmail")){
       

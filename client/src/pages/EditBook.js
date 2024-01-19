@@ -84,7 +84,7 @@ const EditBook = () => {
   //fetch the book details from backend
   const fetchBooks = async () => {
     try {
-      const response = await axios.get(`https://bookapp-y9m7.onrender.com/books/${id}`);
+      const response = await axios.get(`http://localhost:5000/books/${id}`);
       // Check the response data
       setEditBookData(response.data); // Update editBookData
       console.log('Response Data:', editBookData);
@@ -97,7 +97,7 @@ const EditBook = () => {
   //function to delete a book
   const deleteBook = async () => {
     try {
-     const response = await axios.delete(`https://bookapp-y9m7.onrender.com/books/${editBookData._id}`);
+     const response = await axios.delete(`http://localhost:5000/books/${editBookData._id}`);
 
       setBooks(books.filter((book) => book._id !== id));
       if(response.status==200){
@@ -130,7 +130,7 @@ const EditBook = () => {
       }
 
 
-      const response =  await axios.put(`https://bookapp-y9m7.onrender.com/books/${editBookData._id}`, editBookData);
+      const response =  await axios.put(`http://localhost:5000/books/${editBookData._id}`, editBookData);
       console.log(response);
       fetchBooks(); // Refresh the books list
       setSnackbarMessage('Book updated successfully');

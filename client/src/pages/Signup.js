@@ -68,7 +68,7 @@ const Signup = () => {
 
     try {
       const { data } = await axios.post(
-        "https://bookapp-y9m7.onrender.com/api/signup",
+        "http://localhost:5000/api/signup",
         {
           ...inputValue,
         },
