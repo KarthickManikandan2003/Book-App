@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
-  Button, Typography, styled,
-  TextField, Snackbar, Paper, Grid, Fade, Container
+  Button, Typography, Snackbar, Paper, Grid, Fade, Container
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -62,12 +61,11 @@ const theme = createTheme({
 });
 
 const EditBook = () => {
+  //store the useremail in localstorage to give user authentication
   const userEmail = localStorage.getItem('userEmail'); 
-
   let { id } = useParams();
   const [books, setBooks] = useState([]);
   const [editBookData, setEditBookData] = useState({});
-  //const [isModalOpen, setIsModalOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -82,6 +80,8 @@ const EditBook = () => {
     fetchBooks(); // Fetch book details when the component mounts
   }, [id]);
 
+
+  //fetch the book details from backend
   const fetchBooks = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/books/${id}`);
@@ -94,6 +94,7 @@ const EditBook = () => {
     }
   };
 
+  //function to delete a book
   const deleteBook = async () => {
     try {
      const response = await axios.delete(`http://localhost:5000/books/${editBookData._id}`);
@@ -107,8 +108,7 @@ const EditBook = () => {
     }
   };
 
-  
-
+  //function to handle the changes done
   const handleEditBookChange = (e) => {
     setEditBookData((prevState) => ({
       ...prevState,
@@ -116,12 +116,13 @@ const EditBook = () => {
     }));
   };
 
+  //function to check if the url is valid
   const isValidUrl = (url) => {
 
     if (url === '') {
       return true; // Allow empty URL
-  }
-      const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    }
+    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
           '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
           '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
           '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
@@ -130,9 +131,11 @@ const EditBook = () => {
       return urlPattern.test(url);
   };
 
+  //save the changes in the database
   const submitEditBook = async () => {
     try {
 
+      //check for mandatory fields
       if (!editBookData.title || !editBookData.author) {
         setSnackbarMessage('Title and Author are required fields');
         setSnackbarSeverity('error');
@@ -140,6 +143,7 @@ const EditBook = () => {
         return; // Don't proceed if required fields are missing
       }
 
+      //check if cover image url is valid
       if (!isValidUrl(editBookData.coverImage)) {
         setSnackbarMessage('Invalid image URL');
         setSnackbarSeverity('error');
@@ -147,9 +151,8 @@ const EditBook = () => {
         return;
       }
 
-     const response =  await axios.put(`http://localhost:5000/books/${editBookData._id}`, editBookData);
-     console.log(response);
-      //setIsModalOpen(false);
+      const response =  await axios.put(`http://localhost:5000/books/${editBookData._id}`, editBookData);
+      console.log(response);
       fetchBooks(); // Refresh the books list
       setSnackbarMessage('Book updated successfully');
       setSnackbarSeverity('success');
@@ -165,6 +168,7 @@ const EditBook = () => {
     }
   };
 
+  //check if the book owner is the user
   const isOwner = (book) => {
     return book.owner === userEmail;
   };
@@ -172,98 +176,95 @@ const EditBook = () => {
 
     return (
       <ThemeProvider theme={theme}>
-
       <TitleBar />
-  
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Grid container direction="column" alignItems="center" justifyContent="center" spacing={4}>
-          <Grid item xs={12} md={6}>
-            <Fade in timeout={1000}>
-              <Paper elevation={3} sx={{ p: 2, borderRadius: '16px' }}>
-                <Typography variant="h5" gutterBottom align="center" style={{ fontFamily: "cursive" }}>
-                  Update the book
-                </Typography>
-                <form noValidate autoComplete="off">
-          <CssTextField
-            label="Title"
-            name="title"
-            fullWidth
-            margin="normal"
-            value={editBookData?.title || ''}
-            onChange={handleEditBookChange}
-          />
-          <CssTextField
-            label="Author"
-            name="author"
-            fullWidth
-            margin="normal"
-            value={editBookData?.author || ''}
-            onChange={handleEditBookChange}
-          />
-          <CssTextField
-            label="Genre"
-            name="genre"
-            fullWidth
-            margin="normal"
-            value={editBookData?.genre || ''}
-            onChange={handleEditBookChange}
-          />
-          <CssTextField
-            label="Cover Image URL"
-            name="coverImage"
-            fullWidth
-            margin="normal"
-            value={editBookData?.coverImage || ''}
-            onChange={handleEditBookChange}
-          />
-          
-          {isOwner(editBookData) && (
-      <div>
-        <Button
-          onClick={submitEditBook}
-          variant="contained"
-          sx={{
-            borderRadius: '20px', // Curved vertices
-            padding: '10px 20px',
-            margin: '10px',
-            backgroundColor: '#4caf50', // Green color for Save button
-            '&:hover': {
-              backgroundColor: '#388e3c', // Darker shade on hover
-            }
-          }}
-        >
-          Save Changes
-        </Button>
-        <Button
-          onClick={deleteBook}
-          variant="contained"
-          sx={{
-            borderRadius: '20px', // Curved vertices
-            padding: '10px 20px',
-            margin: '10px',
-            backgroundColor: '#f44336', // Red color for Delete button
-            '&:hover': {
-              backgroundColor: '#d32f2f', // Darker shade on hover
-            }
-          }}
-        >
-          Delete Book
-        </Button>
-      </div>
-    )}
-                </form>
-              </Paper>
-            </Fade>
-          </Grid>
-          </Grid>
-      </Container>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <MuiAlert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </MuiAlert>
-      </Snackbar>
-      </ThemeProvider>
-    );
+        <Grid container direction="column" alignItems="center" justifyContent="center" spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Fade in timeout={1000}>
+                <Paper elevation={3} sx={{ p: 2, borderRadius: '16px' }}>
+                  <Typography variant="h5" gutterBottom align="center" style={{ fontFamily: "cursive" }}>
+                    Update the book
+                  </Typography>
+                  <form noValidate autoComplete="off">
+            <CssTextField
+              label="Title"
+              name="title"
+              fullWidth
+              margin="normal"
+              value={editBookData?.title || ''}
+              onChange={handleEditBookChange}
+            />
+            <CssTextField
+              label="Author"
+              name="author"
+              fullWidth
+              margin="normal"
+              value={editBookData?.author || ''}
+              onChange={handleEditBookChange}
+            />
+            <CssTextField
+              label="Genre"
+              name="genre"
+              fullWidth
+              margin="normal"
+              value={editBookData?.genre || ''}
+              onChange={handleEditBookChange}
+            />
+            <CssTextField
+              label="Cover Image URL"
+              name="coverImage"
+              fullWidth
+              margin="normal"
+              value={editBookData?.coverImage || ''}
+              onChange={handleEditBookChange}
+            />
+            {isOwner(editBookData) && (
+            <div>
+              <Button
+                onClick={submitEditBook}
+                  variant="contained"
+                  sx={{
+                    borderRadius: '20px', // Curved vertices
+                    padding: '10px 20px',
+                    margin: '10px',
+                    backgroundColor: '#4caf50', // Green color for Save button
+                    '&:hover': {
+                    backgroundColor: '#388e3c', // Darker shade on hover
+                    }
+                  }}
+              >
+                Save Changes
+              </Button>
+              <Button
+                onClick={deleteBook}
+                variant="contained"
+                sx={{
+                  borderRadius: '20px', // Curved vertices
+                  padding: '10px 20px',
+                  margin: '10px',
+                  backgroundColor: '#f44336', // Red color for Delete button
+                  '&:hover': {
+                    backgroundColor: '#d32f2f', // Darker shade on hover
+                  }
+                }}
+              >
+                Delete Book
+              </Button>
+            </div>
+           )}
+          </form>
+        </Paper>
+      </Fade>
+      </Grid>
+    </Grid>
+    </Container>
+    <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+      <MuiAlert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        {snackbarMessage}
+      </MuiAlert>
+    </Snackbar>
+    </ThemeProvider>
+  );
 };
 
 export default EditBook;

@@ -1,4 +1,3 @@
-// TitleBar.js
 import React from 'react';
 import { AppBar, Toolbar, Box, Button, Typography, IconButton } from '@mui/material';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';

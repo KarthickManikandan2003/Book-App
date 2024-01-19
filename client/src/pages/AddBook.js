@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
-  Container, Typography, TextField, Button, Grid, Card, CardMedia, CardContent, CardActions, IconButton, AppBar, Toolbar, Tooltip, Fade, Paper, Box, styled
+  Container, Typography, Button, Grid, Fade, Paper
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import BookIcon from '@mui/icons-material/Book';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
@@ -69,61 +67,55 @@ const AddBook = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const navigate = useNavigate();
 
+  //take care of the toast message
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
   
-    const [newBook, setNewBook] = useState(() => {
-      // Retrieve book data from local storage or initialize with default values
-      const savedBook = localStorage.getItem('newBook');
-      return savedBook ? JSON.parse(savedBook) : { title: '', author: '', genre: '', coverImage: '', owner:userEmail};
-    });
+  
+  const [newBook, setNewBook] = useState(() => {
+    // Retrieve book data from local storage or initialize with default values
+    const savedBook = localStorage.getItem('newBook');
+    return savedBook ? JSON.parse(savedBook) : { title: '', author: '', genre: '', coverImage: '', owner:userEmail};
+  });
 
-    const isValidUrl = (url) => {
-      if (url === '') {
-        return true; // Allow empty URL
-    }
-      const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-      return urlPattern.test(url);
-  };
-
-  // Function to fetch books from the backend
-  const fetchBooks = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/books');
-      setBooks(response.data);
-    } catch (error) {
-      console.error('Error fetching books:', error);
-    }
+  //fuction to check if the cover image url is valid
+  const isValidUrl = (url) => {
+    if (url === '') {
+      return true; // Allow empty URL
+  }
+    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return urlPattern.test(url);
   };
 
 
   // Function to add a new book
   const addBook = async () => {
-
     try {
 
+      //check if the required fields are filled
       if (!newBook.title || !newBook.author) {
         setSnackbarMessage('Title and Author are required fields');
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
         return; // Don't proceed if required fields are missing
-      }
+        }
 
+      //check if the image url is valid
       if (!isValidUrl(newBook.coverImage)) {
         setSnackbarMessage('Invalid image URL');
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
         return;
-    }
+      }
 
+      //api call to the backend 
       const response = await axios.post('http://localhost:5000/books', newBook);
       setBooks([...books, response.data]);
       setNewBook({
@@ -143,16 +135,6 @@ const AddBook = () => {
     }
   };
 
-  // Function to delete a book by ID
-  const deleteBook = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/books/${id}`);
-      setBooks(books.filter((book) => book._id !== id));
-    } catch (error) {
-      console.error('Error deleting book:', error);
-    }
-  };
-
   
   // Fetch books from the backend when the component mounts
   useEffect(() => {
@@ -161,12 +143,9 @@ const AddBook = () => {
 
   
 
-  
   return (
     <ThemeProvider theme={theme}>
-
     <TitleBar />
-  
       <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Grid container direction="column" alignItems="center" justifyContent="center" spacing={4}>
           <Grid item xs={12} md={6}>
@@ -222,7 +201,6 @@ const AddBook = () => {
               </Paper>
             </Fade>
           </Grid>
-
           <Grid item xs={12} md={6}>
             <Button 
               component={Link} // Use the Link component for navigation

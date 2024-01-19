@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   Box,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
@@ -152,7 +151,7 @@ const Signup = () => {
         </form>
         <Typography variant="body2" sx={{ marginTop: "16px" }}>
           Already have an account?{" "}
-          <Link to="/login">Login</Link> {/* Removed curly braces */}
+          <Link to="/login">Login</Link> 
         </Typography>
       </Paper>
       <ToastContainer />
